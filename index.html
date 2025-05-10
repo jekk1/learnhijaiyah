@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>belajar hijaiyah</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Belajar Huruf Hijaiyah</h1>
+    <p>Geser huruf ke kiri dan baca cara bacanya!</p>
+    <div class="controls">
+      <button onclick="ModeHitam()">🌙 mode gelap</button>
+      <button onclick="zoomIn()">A+</button>
+      <button onclick="zoomOut()">A-</button>
+      <button onclick="tampilkanFavorit()" class="btn-favorit" id="btn-favorit">⭐ Favorit</button>
+      <button onclick="toggleSidebar()">☰ Daftar huruf</button>
+      <button onclick="kembaliDariFavorit()" id="btn-kembali" style="display:none">🔙 Kembali</button>
+      <a href="listening.html" class="button-listening">🎧 Tes pendengaran</a>
+    </div>
+    <div class="harakat-controls">
+      <button onclick="gantiHarakat('fatha')" id="btn-fatha">Fatha (َ)</button>
+      <button onclick="gantiHarakat('kasrah')" id="btn-kasrah">Kasrah (ِ)</button>
+      <button onclick="gantiHarakat('dammah')" id="btn-dammah">Dhummah (ُ)</button>
+    </div>
+  </header>
+
+
+  <section class="intro">
+    <div class="padding-20">
+      <h2 class="color-primary">Apa itu huruf hijaiyah?</h2>
+      <p>Huruf hijaiyah adalah huruf-huruf dalam abjad Arab yang berjumlah 29. Huruf-huruf ini penting untuk dipelajari karena menjadi dasar membaca Al-Qur'an.</p>
+      <p>Setiap huruf memiliki bunyi berbeda tergantung harakat-nya: fatha (a), kasrah (i), dan dammah (u).</p>
+    </div>
+  </section>
+
+  <main>
+    <div class="sidebar hidden" id="sidebar"></div>
+    <div class="carousel" id="carousel"></div>
+    <div id="favoriteSlides" class="carousel hidden"></div>
+  </main>
+
+  <section class="shoutout">
+    <h2>Dibuat oleh:</h2>
+    <ul>
+      <li>X PPLG 2</li>
+      <li>Muhammad Futuh Arzaqi</li>
+      <li>Muhammad Dzikrul Kahfi</li>
+      <li>Kaisar Mubarok Putra</li>
+      <li>Mustofa Bisyri</li>
+      <li>Muhammad Yusuf Khalilullah</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Senang belajar huruf hijaiyah</p>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    // Pastikan patching setelah script.js dan DOM siap
+    document.addEventListener('DOMContentLoaded', function() {
+      var btnFavorit = document.getElementById('btn-favorit');
+      var btnKembali = document.getElementById('btn-kembali');
+      var sidebar = document.getElementById('sidebar');
+      if (!btnFavorit || !btnKembali) return;
+      btnFavorit.style.display = '';
+      btnKembali.style.display = 'none';
+      var origTampilkanFavorit = window.tampilkanFavorit;
+      window.tampilkanFavorit = function() {
+        btnFavorit.style.display = 'none';
+        btnKembali.style.display = '';
+        // Tampilkan hanya huruf favorit di sidebar
+        if (typeof bookmarks !== 'undefined' && Array.isArray(bookmarks) && typeof hijaiyah !== 'undefined') {
+          sidebar.innerHTML = '';
+          bookmarks.filter(i => typeof i === 'number' && hijaiyah[i]).forEach(i => {
+            var btn = document.createElement('button');
+            btn.textContent = hijaiyah[i].huruf;
+            btn.onclick = function() {
+              // Scroll ke slide favorit
+              var slides = document.querySelectorAll('#favoriteSlides .slide');
+              if (slides[i]) slides[i].scrollIntoView({ behavior: 'smooth' });
+            };
+            sidebar.appendChild(btn);
+          });
+          sidebar.classList.remove('hidden');
+        }
+        if (typeof origTampilkanFavorit === 'function') origTampilkanFavorit();
+      };
+      var origKembaliDariFavorit = window.kembaliDariFavorit;
+      window.kembaliDariFavorit = function() {
+        btnFavorit.style.display = '';
+        btnKembali.style.display = 'none';
+        // Kembalikan sidebar ke mode normal (semua huruf)
+        if (typeof renderHuruf === 'function') renderHuruf();
+        if (typeof origKembaliDariFavorit === 'function') origKembaliDariFavorit();
+      };
+    });
+  </script>
+</body>
+</html>

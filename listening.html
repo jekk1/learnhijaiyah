@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tes Listening Hijaiyah</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .quiz-container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #7f763c43;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(157, 86, 86, 0.1);
+    }
+    .question {
+      margin-bottom: 20px;
+    }
+    .question h3 {
+      margin: 10px 0;
+    }
+    .options button {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin: 6px 0;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #b52f2f;
+      background-color: #37b9c2ee;
+      cursor: pointer;
+      font-size: 1.4rem;
+      transition: background-color 0.3s;
+    }
+    .options button span {
+      font-size: 1rem;
+      font-style: italic;
+      color: #1f1b1b;
+    }
+    .options button:hover {
+      background-color: #2ecacf;
+    }
+    #score {
+      font-size: 1.2rem;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <h2>🎧 Tes listening huruf hijaiyah</h2>
+    <div id="quiz"></div>
+    <div id="score"></div>
+  </div>
+
+  <script>
+    const soalHijaiyah = [
+      { bacaan: "ba", huruf: "ب", harakat: "dengan fatha" },
+      { bacaan: "ta", huruf: "ت", harakat: "dengan fatha" },
+      { bacaan: "tsa", huruf: "ث", harakat: "dengan fatha" },
+      { bacaan: "ja", huruf: "ج", harakat: "dengan fatha" },
+      { bacaan: "ha", huruf: "ح", harakat: "dengan fatha" },
+      { bacaan: "kha", huruf: "خ", harakat: "dengan fatha" },
+      { bacaan: "da", huruf: "د", harakat: "dengan fatha" },
+      { bacaan: "za", huruf: "ذ", harakat: "dengan fatha" },
+      { bacaan: "sa", huruf: "س", harakat: "dengan fatha" },
+      { bacaan: "sha", huruf: "ش", harakat: "dengan fatha" },
+      { bacaan: "dha", huruf: "ض", harakat: "dengan fatha" },
+      { bacaan: "a", huruf: "ا", harakat: "dengan fatha" },
+      { bacaan: "gha", huruf: "غ", harakat: "dengan fatha" },
+      { bacaan: "fa", huruf: "ف", harakat: "dengan fatha" },
+      { bacaan: "qa", huruf: "ق", harakat: "dengan fatha" },
+      { bacaan: "ka", huruf: "ك", harakat: "dengan fatha" },
+      { bacaan: "la", huruf: "ل", harakat: "dengan fatha" },
+      { bacaan: "ma", huruf: "م", harakat: "dengan fatha" },
+      { bacaan: "na", huruf: "ن", harakat: "dengan fatha" },
+      { bacaan: "ya", huruf: "ي", harakat: "dengan fatha" },
+      { bacaan: "di", huruf: "د", harakat: "dengan kasrah" },
+      { bacaan: "shi", huruf: "ش", harakat: "dengan kasrah" },
+      { bacaan: "mu", huruf: "م", harakat: "dengan dammah" },
+      { bacaan: "ku", huruf: "ك", harakat: "dengan dammah" },
+      { bacaan: "ti", huruf: "ت", harakat: "dengan kasrah" },
+      { bacaan: "fi", huruf: "ف", harakat: "dengan kasrah" },
+      { bacaan: "qi", huruf: "ق", harakat: "dengan kasrah" },
+      { bacaan: "hu", huruf: "ه", harakat: "dengan dammah" },
+      { bacaan: "ain", huruf: "ع", harakat: "dengan fatha" },
+      { bacaan: "kaf", huruf: "ك", harakat: "dengan kasrah" }
+    ];
+
+    const acak = arr => arr.sort(() => Math.random() - 0.5);
+    const soalDipilih = acak([...soalHijaiyah]).slice(0, 15);
+
+    const quizContainer = document.getElementById("quiz");
+    let score = 0;
+
+    // Fungsi untuk play audio sesuai harakat dan bacaan
+    function playHijaiyahAudio(bacaan, harakat) {
+      let folder = "hijaiyah";
+      let ext = "mp3";
+      let namaFile = "";
+      let nama = bacaan;
+      const mappingNama = {
+        a: "Alif", ba: "Ba", ta: "Ta", tsa: "Tsa", ja: "Jim", ha: "Ha", kha: "Kha", da: "Dal", za: "Dzal", ra: "Ra", sa: "Sin", sha: "Syin", dha: "Dhad", gha: "Ghain", fa: "Fa", qa: "Qaf", ka: "Kaf", la: "Lam", ma: "Mim", na: "Nun", ya: "Ya", di: "Dal", shi: "Syin", mu: "Mim", ku: "Kaf", ru: "Ra", ti: "Ta", fi: "Fa", qi: "Qaf", hu: "Ha"
+      };
+      let candidates = [];
+      if (harakat.includes("fatha")) {
+        folder = "Fathah";
+        // Mapping transliterasi ke nama file di folder Fathah
+        const mappingFathahFile = {
+          gha: "ga", qa: "qof", fa: "fa", sha: "Syin", za: "dzal", dha: "dhad", tha: "tho", wa: "wawu", ya: "ya", tsa: "tsa", da: "Dal", ta: "Ta", ba: "Ba", a: "Alif", ha: "Ha", ja: "Jim", kha: "Kha", sa: "Sin", ma: "mim", na: "nun", la: "lam", ra: "ra"
+        };
+        let namaHuruf = mappingNama[bacaan] || bacaan;
+        if (mappingFathahFile[bacaan]) {
+          namaHuruf = mappingFathahFile[bacaan];
+        }
+        candidates = [
+          // Penanganan khusus untuk 'ra' (Fathah (ra).m4a)
+          namaHuruf === "ra" ? "Fathah (ra)" : null,
+          `Fathah(${namaHuruf})`,
+          `Fathah (${namaHuruf})`,
+          `Fathah(${namaHuruf.toLowerCase()})`,
+          `Fathah (${namaHuruf.toLowerCase()})`,
+          `Fathah(${namaHuruf.charAt(0).toUpperCase() + namaHuruf.slice(1).toLowerCase()})`,
+          `Fathah (${namaHuruf.charAt(0).toUpperCase() + namaHuruf.slice(1).toLowerCase()})`,
+          `Fathah(${namaHuruf.replace(/'/g, "")})`,
+          `Fathah (${namaHuruf.replace(/'/g, "")})`,
+          `Fathah(${namaHuruf.replace(/ /g, "")})`,
+          `Fathah (${namaHuruf.replace(/ /g, "")})`,
+          `Fathah(${namaHuruf.toLowerCase().replace(/ /g, "")})`,
+          `Fathah (${namaHuruf.toLowerCase().replace(/ /g, "")})`,
+        ].filter(Boolean);
+        candidates = candidates.concat(candidates.map(f => f.replace('.mp3', '.m4a')));
+      } else if (harakat.includes("kasrah")) {
+        folder = "Kasrah";
+        ext = "mp3";
+        const namaHuruf = mappingNama[bacaan] || bacaan;
+        candidates = [
+          `${namaHuruf}.Kasrah`,
+          `${namaHuruf.toLowerCase()}.kasrah`,
+          `${namaHuruf.charAt(0).toUpperCase() + namaHuruf.slice(1).toLowerCase()}.Kasrah`,
+          `${namaHuruf.charAt(0).toUpperCase() + namaHuruf.slice(1).toLowerCase()}.kasrah`,
+        ];
+      } else if (harakat.includes("dammah")) {
+        folder = "dhummah";
+        ext = "aac";
+        // Mapping transliterasi ke file dammah jika ada
+        const mappingDhummah = {
+          "Ain": "ain dhummah",
+          "Alif": "alif dhommah",
+          "Ba": "ba'dhammah",
+          "Dha": "dha dhammah",
+          "Fa": "fa dhammah",
+          "Ghain": "ghain dummah",
+          "Ha": "ha dhammah",
+          "Jim": "ja dhammah",
+          "Kaf": "kaf dhommah",
+          "Kha": "kha dhammah",
+          "Lam": "lam dhommah",
+          "Mim": "mim dhummah",
+          "Nun": "nun dhammah",
+          "Qaf": "qaf dhammah",
+          "Sin": "sin dhammah",
+          "Syad": "syad dhummah",
+          "Syin": "syin dummah",
+          "Ta": "Ta'Dhammah",
+          "Tsa": "tsu dhammah",
+          "Wau": "waw dhommah",
+          "Ya": "ya dhommah",
+          "Za": "za dhammah",
+          "Zad": "zad dhummah",
+          // mapping transliterasi ke file dammah
+          gha: "ghain dummah", fa: "fa dhammah", qa: "qaf dhammah", sha: "syin dummah", za: "za dhammah", dha: "dha dhammah", ta: "Ta'Dhammah", tsa: "tsu dhammah", wa: "waw dhommah", ya: "ya dhommah", ma: "mim dhummah", na: "nun dhammah", la: "lam dhommah", ra: "sin dhammah", ku: "kaf dhommah", mu: "mim dhummah", ru: "sin dhammah", shi: "syin dummah"
+        };
+        const namaHuruf = mappingNama[bacaan] || bacaan;
+        candidates = [
+          mappingDhummah[namaHuruf],
+          mappingDhummah[bacaan],
+          namaHuruf.toLowerCase() + " dhummah",
+          namaHuruf.toLowerCase() + " dhammah",
+          namaHuruf.toLowerCase() + " dhommah",
+          namaHuruf.toLowerCase().replace(/'/g, "") + " dhummah",
+          namaHuruf.toLowerCase().replace(/'/g, "") + " dhammah",
+          namaHuruf.toLowerCase().replace(/'/g, "") + " dhommah",
+        ];
+      } else {
+        folder = "hijaiyah";
+        ext = "m4a";
+        const namaHuruf = mappingNama[bacaan] || bacaan;
+        candidates = [
+          namaHuruf,
+          namaHuruf.charAt(0).toUpperCase() + namaHuruf.slice(1).toLowerCase(),
+          namaHuruf.toLowerCase(),
+        ];
+      }
+      // Coba semua kandidat file
+      function tryPlay(index) {
+        if (index >= candidates.length) {
+          // fallback TTS jika audio tidak ada
+          const utterance = new SpeechSynthesisUtterance(bacaan);
+          utterance.lang = "ar-SA";
+          speechSynthesis.speak(utterance);
+          return;
+        }
+        const audioPath = `dub/${folder}/${candidates[index]}.${ext}`;
+        const audio = new Audio(audioPath);
+        audio.play().then(() => {}).catch(() => {
+          tryPlay(index + 1);
+        });
+      }
+      tryPlay(0);
+    }
+
+    soalDipilih.forEach((soal, index) => {
+      const jawabanBenar = soal.bacaan;
+      const div = document.createElement("div");
+      div.className = "question";
+      const questionText = document.createElement("h3");
+      questionText.textContent = `Soal ${index + 1}`;
+      const playBtn = document.createElement("button");
+      playBtn.textContent = "🔊 dengar";
+      playBtn.onclick = () => {
+        playHijaiyahAudio(soal.bacaan, soal.harakat);
+      };
+
+      const optionsDiv = document.createElement("div");
+      optionsDiv.className = "options";
+      const pilihan = acak([soal, ...acak([...soalHijaiyah.filter(j => j.bacaan !== jawabanBenar)]).slice(0, 3)]);
+
+      pilihan.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.innerHTML = `${opt.huruf} <span>${opt.harakat}</span>`;
+        btn.onclick = () => {
+          if (!btn.classList.contains("answered")) {
+            if (opt.bacaan === jawabanBenar) {
+              score++;
+              btn.style.backgroundColor = "#90be6d";
+            } else {
+              btn.style.backgroundColor = "#ef476f";
+            }
+            btn.classList.add("answered");
+            const allButtons = btn.parentElement.querySelectorAll("button");
+            allButtons.forEach(b => b.disabled = true);
+          }
+        };
+        optionsDiv.appendChild(btn);
+      });
+
+      div.appendChild(questionText);
+      div.appendChild(playBtn);
+      div.appendChild(optionsDiv);
+      quizContainer.appendChild(div);
+    });
+
+    const selesaiBtn = document.createElement("button");
+    selesaiBtn.textContent = "Selesai";
+    selesaiBtn.onclick = () => {
+      document.getElementById("score").textContent = `Skor kamu: ${score} dari 15`;
+    };
+    quizContainer.appendChild(selesaiBtn);
+  </script>
+</body>
+</html>
